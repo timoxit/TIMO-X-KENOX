@@ -1289,20 +1289,7 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
   }
 
   return (
-    <div style={{ minHeight: '100vh', padding: '40px 20px', position: 'relative' }}>
-      {/* Background glowing gradients */}
-      <div style={{
-        position: 'absolute',
-        top: '0%',
-        right: '10%',
-        width: '500px',
-        height: '500px',
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.04) 0%, transparent 70%)',
-        filter: 'blur(60px)',
-        zIndex: -1
-      }} />
-
+    <div style={{ minHeight: '100vh', padding: '40px 20px' }}>
       <div className="container dashboard-container">
         
         {/* Top Navigation Header Bar */}
