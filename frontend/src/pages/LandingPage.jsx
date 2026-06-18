@@ -151,8 +151,8 @@ export default function LandingPage({ onAdminLogin }) {
       <div className="container" style={{ maxWidth: '960px', marginTop: '64px', width: '100%' }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '24px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))',
+          gap: '20px'
         }}>
           {[
             {
@@ -215,13 +215,13 @@ export default function LandingPage({ onAdminLogin }) {
               key={idx}
               className="glass-panel"
               style={{
-                padding: '24px',
+                padding: '16px 20px',
                 display: 'flex',
                 gap: '16px',
                 background: '#09090b',
                 border: '1px solid #27272a',
                 borderRadius: '8px',
-                alignItems: 'flex-start',
+                alignItems: 'center',
                 textAlign: 'left'
               }}
             >
@@ -239,11 +239,18 @@ export default function LandingPage({ onAdminLogin }) {
               }}>
                 {item.icon}
               </div>
-              <div>
-                <h3 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#fff', marginBottom: '4px' }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: '10px',
+                flexWrap: 'wrap',
+                width: '100%'
+              }}>
+                <h3 style={{ fontSize: '0.925rem', fontWeight: '800', color: '#fff', margin: 0, whiteSpace: 'nowrap' }}>
                   {item.title}
                 </h3>
-                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                <span style={{ color: 'var(--border-color)', userSelect: 'none', fontSize: '0.9rem' }}>|</span>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: 0 }}>
                   {item.desc}
                 </p>
               </div>
