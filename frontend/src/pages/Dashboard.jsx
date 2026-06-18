@@ -1289,27 +1289,77 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
   }
 
   return (
-    <div style={{ minHeight: '100vh', padding: '30px 20px' }}>
+    <div style={{ minHeight: '100vh', padding: '40px 20px', position: 'relative' }}>
+      {/* Background glowing gradients */}
+      <div style={{
+        position: 'absolute',
+        top: '0%',
+        right: '10%',
+        width: '500px',
+        height: '500px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.04) 0%, transparent 70%)',
+        filter: 'blur(60px)',
+        zIndex: -1
+      }} />
+
       <div className="container dashboard-container">
         
-        {/* Top Navigation */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-          <button onClick={onBack} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+        {/* Top Navigation Header Bar */}
+        <header className="glass-panel" style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '16px 28px',
+          marginBottom: '32px',
+          border: '1px solid rgba(255, 255, 255, 0.04)'
+        }}>
+          <button 
+            onClick={onBack} 
+            className="btn-secondary" 
+            style={{ 
+              padding: '9px 18px', 
+              fontSize: '0.825rem',
+              borderRadius: '10px'
+            }}
+          >
             <ChevronLeft size={16} />
             Back to Servers
           </button>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {guildIcon ? (
-              <img src={guildIcon} alt={guildName} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+              <img 
+                src={guildIcon} 
+                alt={guildName} 
+                style={{ 
+                  width: '38px', 
+                  height: '38px', 
+                  borderRadius: '50%',
+                  border: '2px solid rgba(255, 255, 255, 0.08)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                }} 
+              />
             ) : (
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>
+              <div style={{ 
+                width: '38px', 
+                height: '38px', 
+                borderRadius: '50%', 
+                backgroundColor: 'var(--primary)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                fontSize: '0.9rem', 
+                fontWeight: 'bold',
+                color: '#fff',
+                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)'
+              }}>
                 {guildName[0].toUpperCase()}
               </div>
             )}
-            <h3 style={{ fontSize: '1.15rem' }}>{guildName}</h3>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', letterSpacing: '-0.01em' }}>{guildName}</h3>
           </div>
-        </div>
+        </header>
 
         {/* Global Notifications */}
         {successMsg && (

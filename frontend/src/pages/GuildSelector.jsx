@@ -31,70 +31,84 @@ export default function GuildSelector({ user, onSelectGuild, onLogout }) {
   );
 
   return (
-    <div style={{ minHeight: '100vh', padding: '40px 20px' }}>
-      
-      {/* Centered Header Bar */}
+    <div style={{ minHeight: '100vh', padding: '40px 20px', position: 'relative' }}>
+      {/* Background radial highlights */}
+      <div style={{
+        position: 'absolute',
+        top: '0%',
+        left: '20%',
+        width: '400px',
+        height: '400px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%)',
+        filter: 'blur(50px)',
+        zIndex: -1
+      }} />
+
+      {/* Top Header Navigation */}
       <div className="container">
         <header className="glass-panel" style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '16px 24px',
-          marginBottom: '30px'
+          padding: '16px 28px',
+          marginBottom: '32px',
+          border: '1px solid rgba(255, 255, 255, 0.04)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             {user.avatar ? (
               <img 
                 src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} 
                 alt={user.username}
-                style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1.5px solid var(--primary)' }}
+                style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid var(--primary)', boxShadow: '0 0 10px var(--primary-glow)' }}
               />
             ) : (
               <div style={{
-                width: '40px',
-                height: '40px',
+                width: '42px',
+                height: '42px',
                 borderRadius: '50%',
                 backgroundColor: 'var(--primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontWeight: '500'
+                fontWeight: '600',
+                color: '#fff'
               }}>
                 {user.username.substring(0, 2).toUpperCase()}
               </div>
             )}
             <div>
-              <div style={{ fontWeight: '600', fontSize: '1rem' }}>{user.username}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Welcome Back</div>
+              <div style={{ fontWeight: '700', fontSize: '1.05rem', color: '#fff' }}>{user.username}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Welcome back to TIMOXITER</div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
             <a 
               href="https://discord.gg/ZVfJvw93Ak" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="btn-primary" 
               style={{ 
-                padding: '8px 16px', 
+                padding: '9px 18px', 
                 fontSize: '0.85rem', 
                 backgroundColor: '#5865F2', 
                 backgroundImage: 'none',
-                boxShadow: '0 4px 10px rgba(88, 101, 242, 0.2)',
-                borderRadius: '8px',
+                boxShadow: '0 4px 14px rgba(88, 101, 242, 0.25)',
+                borderRadius: '10px',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
                 textDecoration: 'none'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 6px 14px rgba(88, 101, 242, 0.35)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(88, 101, 242, 0.45)';
                 e.currentTarget.style.backgroundColor = '#4752c4';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 10px rgba(88, 101, 242, 0.2)';
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(88, 101, 242, 0.25)';
                 e.currentTarget.style.backgroundColor = '#5865F2';
               }}
             >
@@ -104,7 +118,7 @@ export default function GuildSelector({ user, onSelectGuild, onLogout }) {
               Discord Server
             </a>
 
-            <button onClick={onLogout} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+            <button onClick={onLogout} className="btn-secondary" style={{ padding: '9px 18px', fontSize: '0.85rem' }}>
               <LogOut size={16} />
               Logout
             </button>
@@ -112,82 +126,94 @@ export default function GuildSelector({ user, onSelectGuild, onLogout }) {
         </header>
       </div>
 
-      {/* Centered Dashboard Layout */}
+      {/* Main Selector Split Layout */}
       <div className="container dashboard-container">
-        {/* Dashboard 2-Column Split Layout */}
         <div className="selector-layout">
           
           {/* Left Column: Sidebar panel */}
-          <aside className="glass-panel sidebar-panel">
-            {/* Sidebar Profile details */}
+          <aside className="sidebar-panel">
+            {/* User Profile */}
             <div className="sidebar-profile">
               {user.avatar ? (
-                <img 
-                  src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} 
-                  alt={user.username}
-                  style={{ width: '70px', height: '70px', borderRadius: '50%', border: '2px solid var(--primary)', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.15)' }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <img 
+                    src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} 
+                    alt={user.username}
+                    style={{ width: '76px', height: '76px', borderRadius: '50%', border: '2.5px solid var(--primary)', boxShadow: '0 0 20px rgba(99, 102, 241, 0.25)' }}
+                  />
+                  <span style={{
+                    position: 'absolute',
+                    bottom: '4px',
+                    right: '4px',
+                    width: '16px',
+                    height: '16px',
+                    backgroundColor: 'var(--success)',
+                    border: '3px solid var(--bg-secondary)',
+                    borderRadius: '50%'
+                  }} />
+                </div>
               ) : (
                 <div style={{
-                  width: '70px',
-                  height: '70px',
+                  width: '76px',
+                  height: '76px',
                   borderRadius: '50%',
                   backgroundColor: 'var(--primary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.5rem',
-                  fontWeight: '600',
-                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.15)'
+                  fontSize: '1.6rem',
+                  fontWeight: '700',
+                  color: '#fff',
+                  boxShadow: '0 0 20px rgba(99, 102, 241, 0.25)'
                 }}>
                   {user.username.substring(0, 2).toUpperCase()}
                 </div>
               )}
               <div style={{ marginTop: '4px' }}>
-                <div style={{ fontWeight: '700', fontSize: '1.1rem', color: '#fff' }}>{user.username}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px' }}>Dashboard User</div>
+                <div style={{ fontWeight: '800', fontSize: '1.15rem', color: '#fff' }}>{user.username}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Server Configurator</div>
               </div>
             </div>
 
-            {/* Sidebar Search */}
+            {/* Search Input */}
             <div>
-              <div className="sidebar-heading" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Search Server</div>
-              <div style={{ position: 'relative', width: '100%', marginTop: '6px' }}>
-                <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <div className="sidebar-heading">Search Server</div>
+              <div style={{ position: 'relative', width: '100%' }}>
+                <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                 <input 
                   type="text" 
-                  placeholder="Search servers..."
+                  placeholder="Filter by name..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="glass-input"
-                  style={{ paddingLeft: '38px', fontSize: '0.88rem', height: '40px' }}
+                  style={{ paddingLeft: '40px', fontSize: '0.88rem', height: '42px' }}
                 />
               </div>
             </div>
 
-            {/* Sidebar Statistics */}
+            {/* Statistics */}
             <div>
-              <div className="sidebar-heading" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Server Statistics</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+              <div className="sidebar-heading">Your Communities</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  <span>Total Loaded:</span>
-                  <span style={{ fontWeight: '600', color: '#fff' }}>{guilds.length}</span>
+                  <span>Total Servers:</span>
+                  <span style={{ fontWeight: '700', color: '#fff' }}>{guilds.length}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  <span>Connected:</span>
-                  <span style={{ fontWeight: '600', color: 'var(--success)' }}>{guilds.filter(g => g.botInGuild).length}</span>
+                  <span>Bot Connected:</span>
+                  <span style={{ fontWeight: '700', color: 'var(--success)' }}>{guilds.filter(g => g.botInGuild).length}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  <span>Not Configured:</span>
-                  <span style={{ fontWeight: '600', color: 'var(--secondary)' }}>{guilds.filter(g => !g.botInGuild).length}</span>
+                  <span>Not Installed:</span>
+                  <span style={{ fontWeight: '700', color: 'var(--secondary)' }}>{guilds.filter(g => !g.botInGuild).length}</span>
                 </div>
               </div>
             </div>
 
-            {/* Quick Navigation Links */}
+            {/* Quick Links */}
             <div>
-              <div className="sidebar-heading" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Quick Links</div>
-              <div className="sidebar-links" style={{ marginTop: '8px' }}>
+              <div className="sidebar-heading">Support & Guides</div>
+              <div className="sidebar-links">
                 <a 
                   href="https://discord.gg/ZVfJvw93Ak" 
                   target="_blank" 
@@ -195,14 +221,14 @@ export default function GuildSelector({ user, onSelectGuild, onLogout }) {
                   className="sidebar-link-btn"
                 >
                   <Server size={15} style={{ color: '#5865F2' }} />
-                  <span>Support Server</span>
+                  <span>Join Support Guild</span>
                   <ExternalLink size={12} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                 </a>
                 
                 <button 
                   onClick={fetchGuilds} 
                   className="sidebar-link-btn"
-                  style={{ width: '100%', textAlign: 'left', background: 'rgba(255, 255, 255, 0.02)', cursor: 'pointer' }}
+                  style={{ width: '100%', textAlign: 'left', cursor: 'pointer' }}
                 >
                   <RefreshCw size={15} style={{ color: 'var(--primary)' }} />
                   <span>Refresh Server List</span>
@@ -210,41 +236,38 @@ export default function GuildSelector({ user, onSelectGuild, onLogout }) {
 
                 <a 
                   href="#" 
-                  onClick={(e) => { e.preventDefault(); alert('Documentation is included in the project root README.'); }}
+                  onClick={(e) => { e.preventDefault(); alert('Please refer to the README.md in the project files for full deployment and bot command documentation.'); }}
                   className="sidebar-link-btn"
                 >
                   <HelpCircle size={15} style={{ color: 'var(--warning)' }} />
-                  <span>Read Guide / Help</span>
+                  <span>Documentation Guide</span>
                 </a>
               </div>
             </div>
           </aside>
 
-          {/* Right Column: Server list main view */}
+          {/* Right Column: Server list view */}
           <main style={{ minWidth: 0, flex: 1 }}>
-            
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', textAlign: 'left' }}>
-              <div style={{ textAlign: 'left' }}>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#fff', textAlign: 'left' }}>Select Your Server</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginTop: '2px', textAlign: 'left' }}>
-                  Choose a server to configure. You must have Administrator permissions.
-                </p>
-              </div>
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>Select Your Server</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
+                You must possess Administrator permissions to view and configure these Discord servers.
+              </p>
             </div>
 
-            {/* Content Area */}
+            {/* Content Switcher */}
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '60px' }}>
+              <div style={{ textAlign: 'center', padding: '80px 0' }}>
                 <div style={{
-                  width: '40px',
-                  height: '40px',
-                  border: '4px solid rgba(37, 99, 235, 0.2)',
+                  width: '44px',
+                  height: '44px',
+                  border: '4px solid rgba(99, 102, 241, 0.1)',
                   borderTopColor: 'var(--primary)',
                   borderRadius: '50%',
                   animation: 'spin 1s linear infinite',
-                  margin: '0 auto 16px auto'
+                  margin: '0 auto 20px auto'
                 }} />
-                <p style={{ color: 'var(--text-secondary)' }}>Loading servers...</p>
+                <p style={{ color: 'var(--text-secondary)', fontFamily: 'Outfit', fontWeight: '600' }}>Retrieving your Discord Servers...</p>
                 <style dangerouslySetInnerHTML={{__html: `
                   @keyframes spin {
                     to { transform: rotate(360deg); }
@@ -252,40 +275,41 @@ export default function GuildSelector({ user, onSelectGuild, onLogout }) {
                 `}} />
               </div>
             ) : error ? (
-              <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', borderColor: 'var(--danger)' }}>
-                <p style={{ color: 'var(--danger)', marginBottom: '16px' }}>{error}</p>
-                <button onClick={fetchGuilds} className="btn-primary">Retry</button>
+              <div className="glass-panel" style={{ padding: '36px', textAlign: 'center', borderColor: 'var(--danger)', borderLeft: '4px solid var(--danger)' }}>
+                <p style={{ color: 'var(--danger)', marginBottom: '20px', fontWeight: '500' }}>{error}</p>
+                <button onClick={fetchGuilds} className="btn-primary">Retry fetching</button>
               </div>
             ) : filteredGuilds.length === 0 ? (
-              <div className="glass-panel" style={{ padding: '40px', textAlign: 'center' }}>
-                <p style={{ color: 'var(--text-secondary)' }}>No servers found. Make sure you are an Administrator in at least one server matching your query.</p>
+              <div className="glass-panel" style={{ padding: '48px', textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>No servers found. Ensure you are an Administrator on at least one server matching your search query.</p>
               </div>
             ) : (
               <div className="server-grid">
                 {filteredGuilds.map(guild => (
-                  <div key={guild.id} className="glass-panel server-card-horizontal">
+                  <div key={guild.id} className="server-card-horizontal">
                     
-                    {/* Left part: Server icon and metadata info */}
+                    {/* Left details */}
                     <div className="server-info-group">
                       {guild.icon ? (
                         <img 
                           src={guild.icon} 
                           alt={guild.name} 
-                          style={{ width: '56px', height: '56px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.05)', boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }} 
+                          style={{ width: '60px', height: '60px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.04)', boxShadow: '0 8px 16px rgba(0,0,0,0.4)' }} 
                         />
                       ) : (
                         <div style={{
-                          width: '56px',
-                          height: '56px',
+                          width: '60px',
+                          height: '60px',
                           borderRadius: '50%',
-                          backgroundColor: 'rgba(255,255,255,0.03)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.02)',
                           border: '1px solid var(--border-color)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '1.2rem',
-                          fontWeight: 'bold',
-                          boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+                          fontSize: '1.25rem',
+                          fontWeight: '800',
+                          color: 'var(--primary)',
+                          boxShadow: '0 8px 16px rgba(0,0,0,0.4)'
                         }}>
                           {guild.name.split(' ').map(w => w[0]).join('').substring(0, 3).toUpperCase()}
                         </div>
@@ -295,38 +319,58 @@ export default function GuildSelector({ user, onSelectGuild, onLogout }) {
                         <h3 className="server-name-label">{guild.name}</h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                           <span className="badge-status" style={{
-                            backgroundColor: guild.botInGuild ? 'rgba(16, 185, 129, 0.1)' : 'rgba(6, 182, 212, 0.1)',
-                            color: guild.botInGuild ? 'var(--success)' : 'var(--secondary)'
+                            backgroundColor: guild.botInGuild ? 'rgba(16, 185, 129, 0.08)' : 'rgba(56, 189, 248, 0.08)',
+                            color: guild.botInGuild ? 'var(--success)' : 'var(--secondary)',
+                            border: `1px solid ${guild.botInGuild ? 'rgba(16, 185, 129, 0.2)' : 'rgba(56, 189, 248, 0.2)'}`
                           }}>
-                            {guild.botInGuild ? '• Connected' : '• Offline'}
+                            {guild.botInGuild ? 'Connected' : 'Not Connected'}
                           </span>
                           {guild.memberCount !== undefined && (
-                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                              ({guild.memberCount.toLocaleString()} members)
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                              • {guild.memberCount.toLocaleString()} members
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Right part: Action buttons */}
+                    {/* Right actions */}
                     <div style={{ flexShrink: 0 }}>
                       {guild.botInGuild ? (
                         <button 
                           onClick={() => onSelectGuild(guild.id, guild.name, guild.icon)} 
                           className="btn-primary" 
-                          style={{ padding: '10px 18px', fontSize: '0.88rem', whiteSpace: 'nowrap', gap: '6px' }}
+                          style={{ padding: '11px 20px', fontSize: '0.88rem', whiteSpace: 'nowrap', gap: '8px', borderRadius: '10px' }}
                         >
-                          <Settings size={15} />
+                          <Settings size={16} />
                           Configure
                         </button>
                       ) : (
                         <button 
                           onClick={() => window.open(guild.inviteUrl, '_blank')} 
                           className="btn-secondary" 
-                          style={{ padding: '10px 18px', fontSize: '0.88rem', whiteSpace: 'nowrap', gap: '6px', borderColor: 'rgba(14, 165, 233, 0.3)', color: 'var(--secondary)' }}
+                          style={{ 
+                            padding: '11px 20px', 
+                            fontSize: '0.88rem', 
+                            whiteSpace: 'nowrap', 
+                            gap: '8px', 
+                            borderRadius: '10px',
+                            borderColor: 'rgba(56, 189, 248, 0.25)', 
+                            color: 'var(--secondary)',
+                            background: 'rgba(56, 189, 248, 0.04)'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(56, 189, 248, 0.1)';
+                            e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(56, 189, 248, 0.04)';
+                            e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.25)';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }}
                         >
-                          <PlusCircle size={15} />
+                          <PlusCircle size={16} />
                           Setup Bot
                         </button>
                       )}
@@ -337,9 +381,7 @@ export default function GuildSelector({ user, onSelectGuild, onLogout }) {
             )}
           </main>
         </div>
-
       </div>
     </div>
   );
 }
-
