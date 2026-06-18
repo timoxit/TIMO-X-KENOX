@@ -1,6 +1,19 @@
 import { useState } from 'react';
 import { api } from '../utils/api';
-import { Shield, Sparkles, UserCheck, MessageSquare, ArrowRight, FileText, Send, Ticket, Megaphone, Terminal } from 'lucide-react';
+import { Shield, Sparkles, UserCheck, MessageSquare, ArrowRight, FileText, Send, Ticket, Megaphone, Terminal, Server, Volume2 } from 'lucide-react';
+
+const Youtube = ({ size = 24, className = '', style = {} }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    width={size} 
+    height={size} 
+    fill="currentColor" 
+    className={className}
+    style={style}
+  >
+    <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.969.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.388.507 9.388.507s7.517 0 9.389-.507a3.007 3.007 0 0 0 2.11-2.11C24 15.969 24 12 24 12s0-3.969-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+  </svg>
+);
 
 export default function LandingPage({ onAdminLogin }) {
   const [loading, setLoading] = useState(false);
@@ -156,6 +169,46 @@ export default function LandingPage({ onAdminLogin }) {
               icon: <UserCheck size={18} />,
               title: 'Button Validation',
               desc: 'Discord interactive button roles to verify members.'
+            },
+            {
+              icon: <Ticket size={18} />,
+              title: 'Ticket System',
+              desc: 'Setup support tickets, message templates, and helper roles.'
+            },
+            {
+              icon: <MessageSquare size={18} />,
+              title: 'Roles & Nicknames',
+              desc: 'Auto-assign roles and structure formatting when members join.'
+            },
+            {
+              icon: <FileText size={18} />,
+              title: 'Server Logs',
+              desc: 'Track moderation actions and configurations in real-time.'
+            },
+            {
+              icon: <Send size={18} />,
+              title: 'Broadcast DMs',
+              desc: 'Send bulk direct messages, embeds, and buttons to all members.'
+            },
+            {
+              icon: <Megaphone size={18} />,
+              title: 'Publish Announcement',
+              desc: 'Dispatch formatted rich webhook messages with buttons and pings.'
+            },
+            {
+              icon: <Youtube size={18} />,
+              title: 'YouTube Announcements',
+              desc: 'Automatically post alerts when a YouTube channel uploads a video.'
+            },
+            {
+              icon: <Volume2 size={18} />,
+              title: 'Temp Voice Channels',
+              desc: 'Dynamic join-to-create voice rooms that auto-delete when empty.'
+            },
+            {
+              icon: <Server size={18} />,
+              title: 'System Owner Portal',
+              desc: 'Administrative portal for full server details and member actions.'
             }
           ].map((item, idx) => (
             <div
