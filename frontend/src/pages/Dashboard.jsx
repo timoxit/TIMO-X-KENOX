@@ -1388,17 +1388,14 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
           </div>
         )}
 
-        {/* Horizontal Navigation Menu Tab Bar */}
+        {/* Navigation Menu Tab Bar - Wrapping to ensure all features are fully visible */}
         <div style={{
           display: 'flex',
+          flexWrap: 'wrap',
           gap: '8px',
-          overflowX: 'auto',
-          paddingBottom: '12px',
+          paddingBottom: '16px',
           borderBottom: '1px solid var(--border-color)',
-          marginBottom: '32px',
-          whiteSpace: 'nowrap',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none'
+          marginBottom: '32px'
         }}>
           {[
             { id: 'overview', label: 'Overview', icon: <Info size={14} /> },
