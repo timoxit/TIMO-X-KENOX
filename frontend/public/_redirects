@@ -1,3 +1,4 @@
-/uploads/*  http://74.220.52.251:10000/uploads/:splat  200
-/api/*      http://74.220.52.251:10000/api/:splat      200
-/*          /index.html                                      200
+/uploads/*  https://timo-x-kenox-backend.onrender.com/uploads/:splat  200
+/api/*      https://timo-x-kenox-backend.onrender.com/api/:splat      200
+/socket.io/* https://timo-x-kenox-backend.onrender.com/socket.io/:splat 200
+/*          /index.html                                               200

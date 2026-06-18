@@ -3,15 +3,15 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://74.220.52.251:10000/api/:path*"
+      "destination": "https://timo-x-kenox-backend.onrender.com/api/:path*"
     },
     {
       "source": "/uploads/:path*",
-      "destination": "http://74.220.52.251:10000/uploads/:path*"
+      "destination": "https://timo-x-kenox-backend.onrender.com/uploads/:path*"
     },
     {
       "source": "/socket.io/:path*",
-      "destination": "http://74.220.52.251:10000/socket.io/:path*"
+      "destination": "https://timo-x-kenox-backend.onrender.com/socket.io/:path*"
     },
     {
       "source": "/(.*)",
