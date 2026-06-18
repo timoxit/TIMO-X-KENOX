@@ -27,7 +27,7 @@ app.use(cors({
     const normalizedOrigin = origin.replace(/\/$/, "");
     const isAllowed = allowed.some(url => url && url.replace(/\/$/, "") === normalizedOrigin);
     
-    if (isAllowed || origin.startsWith('http://localhost:') || origin.endsWith('.vercel.app')) {
+    if (isAllowed || origin.startsWith('http://localhost:') || origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com')) {
       callback(null, true);
     } else {
       callback(new Error(`Origin ${origin} not allowed by CORS`));

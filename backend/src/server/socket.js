@@ -4,7 +4,18 @@ let io = null;
 function initSocket(server, allowedOrigins) {
   io = socketIo(server, {
     cors: {
-      origin: allowedOrigins,
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        
+        const normalizedOrigin = origin.replace(/\/$/, "");
+        const isAllowed = allowedOrigins.some(url => url && url.replace(/\/$/, "") === normalizedOrigin);
+        
+        if (isAllowed || origin.startsWith('http://localhost:') || origin.endsWith('.vercel.app') || origin.endsWith('.onrender.com')) {
+          callback(null, true);
+        } else {
+          callback(new Error(`Origin ${origin} not allowed by CORS`));
+        }
+      },
       methods: ["GET", "POST"],
       credentials: true
     }
