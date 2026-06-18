@@ -1,7 +1,7 @@
 services:
   # Backend Web Service (Express & Discord Bot)
   - type: web
-    name: timo-x-kenox-backend
+    name: timo-x-kenox
     env: node
     rootDir: backend
     buildCommand: npm install
