@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../utils/api';
-import { LogOut, Search, PlusCircle, Settings, Server, HelpCircle, ExternalLink, RefreshCw } from 'lucide-react';
+import { LogOut, Search, PlusCircle, Settings, RefreshCw, Server } from 'lucide-react';
 
 export default function GuildSelector({ user, onSelectGuild, onLogout }) {
   const [guilds, setGuilds] = useState([]);
@@ -31,31 +31,34 @@ export default function GuildSelector({ user, onSelectGuild, onLogout }) {
   );
 
   return (
-    <div style={{ minHeight: '100vh', padding: '40px 20px' }}>
+    <div style={{ minHeight: '100vh', padding: '40px 24px' }}>
       
-      {/* Top Header Bar */}
-      <div className="container" style={{ maxWidth: '1200px' }}>
-        <header className="glass-panel" style={{
+      {/* Horizontal Dashboard Header */}
+      <div className="container" style={{ maxWidth: '1200px', marginBottom: '40px' }}>
+        <div className="glass-panel" style={{
           display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'wrap',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '14px 24px',
-          marginBottom: '32px',
+          padding: '20px 28px',
           background: '#09090b',
           border: '1px solid #27272a',
-          borderRadius: '6px'
+          borderRadius: '8px',
+          gap: '20px'
         }}>
+          {/* User Profile Info */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {user.avatar ? (
               <img 
                 src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} 
                 alt={user.username}
-                style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid #27272a' }}
+                style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #27272a' }}
               />
             ) : (
               <div style={{
-                width: '36px',
-                height: '36px',
+                width: '40px',
+                height: '40px',
                 borderRadius: '50%',
                 backgroundColor: 'var(--primary)',
                 display: 'flex',
@@ -74,219 +77,252 @@ export default function GuildSelector({ user, onSelectGuild, onLogout }) {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          {/* Inline Stats Chips */}
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ padding: '6px 14px', background: '#000000', border: '1px solid #27272a', borderRadius: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              Total: <strong style={{ color: '#fff' }}>{guilds.length}</strong>
+            </div>
+            <div style={{ padding: '6px 14px', background: '#000000', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '4px', fontSize: '0.75rem', color: 'var(--accent)' }}>
+              Connected: <strong>{guilds.filter(g => g.botInGuild).length}</strong>
+            </div>
+            <div style={{ padding: '6px 14px', background: '#000000', border: '1px solid #27272a', borderRadius: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              Offline: <strong>{guilds.filter(g => !g.botInGuild).length}</strong>
+            </div>
+          </div>
+
+          {/* Quick Actions / Controls */}
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Search inputs */}
+            <div style={{ position: 'relative', width: '180px' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input 
+                type="text" 
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="glass-input"
+                style={{ paddingLeft: '32px', fontSize: '0.8rem', height: '34px', borderRadius: '6px' }}
+              />
+            </div>
+
+            <button 
+              onClick={fetchGuilds} 
+              className="btn-secondary"
+              style={{ padding: '8px 12px', fontSize: '0.8rem', borderRadius: '6px', height: '34px' }}
+              title="Sync Server List"
+            >
+              <RefreshCw size={13} />
+            </button>
+
             <a 
               href="https://discord.gg/ZVfJvw93Ak" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="btn-secondary" 
               style={{ 
-                padding: '8px 16px', 
+                padding: '8px 14px', 
                 fontSize: '0.8rem', 
                 borderRadius: '6px',
+                textDecoration: 'none',
+                height: '34px',
                 display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                textDecoration: 'none'
+                alignItems: 'center'
               }}
             >
-              Support Server
+              Support
             </a>
 
-            <button onClick={onLogout} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.8rem', borderRadius: '6px' }}>
-              <LogOut size={14} />
-              Logout
+            <button 
+              onClick={onLogout} 
+              className="btn-secondary" 
+              style={{ padding: '8px 14px', fontSize: '0.8rem', borderRadius: '6px', height: '34px' }}
+            >
+              <LogOut size={13} />
             </button>
           </div>
-        </header>
+        </div>
       </div>
 
-      {/* Main Grid Layout */}
-      <div className="container" style={{ maxWidth: '1200px' }}>
-        <div className="selector-layout" style={{ gap: '32px' }}>
-          
-          {/* Left Column: Sidebar panel */}
-          <aside className="sidebar-panel" style={{ background: '#09090b', border: '1px solid #27272a', borderRadius: '6px', padding: '20px' }}>
-            {/* Search Input */}
-            <div>
-              <div className="sidebar-heading">Search Server</div>
-              <div style={{ position: 'relative', width: '100%' }}>
-                <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input 
-                  type="text" 
-                  placeholder="Filter servers..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="glass-input"
-                  style={{ paddingLeft: '36px', fontSize: '0.85rem', height: '38px', borderRadius: '6px' }}
-                />
-              </div>
-            </div>
+      {/* Main Grid View */}
+      <div className="container" style={{ maxWidth: '1200px', textAlign: 'center' }}>
+        
+        {/* Title & Description */}
+        <div style={{ marginBottom: '40px' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: '900', color: '#fff', letterSpacing: '-0.04em' }}>Select Your Server</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '6px', maxWidth: '600px', margin: '6px auto 0 auto' }}>
+            Choose a guild below to configure bot features. You must possess administrative credentials in the selected Discord server.
+          </p>
+        </div>
 
-            {/* Statistics */}
-            <div style={{ marginTop: '4px' }}>
-              <div className="sidebar-heading">System Reach</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  <span>Managed:</span>
-                  <span style={{ fontWeight: '700', color: '#fff' }}>{guilds.length}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  <span>Online:</span>
-                  <span style={{ fontWeight: '700', color: 'var(--accent)' }}>{guilds.filter(g => g.botInGuild).length}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  <span>Offline:</span>
-                  <span style={{ fontWeight: '700', color: 'var(--text-muted)' }}>{guilds.filter(g => !g.botInGuild).length}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div style={{ marginTop: '4px' }}>
-              <div className="sidebar-heading">Quick Actions</div>
-              <div className="sidebar-links">
-                <button 
-                  onClick={fetchGuilds} 
-                  className="sidebar-link-btn"
-                  style={{ width: '100%', textAlign: 'left', cursor: 'pointer', borderRadius: '4px' }}
-                >
-                  <RefreshCw size={13} style={{ color: 'var(--primary)' }} />
-                  <span>Sync Server List</span>
-                </button>
-              </div>
-            </div>
-          </aside>
-
-          {/* Right Column: Server list view */}
-          <main style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ marginBottom: '24px', textAlign: 'left' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#fff', letterSpacing: '-0.03em' }}>Select Your Server</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '2px' }}>
-                Select a connected guild below. You must possess administrative credentials to configure the bot modules.
-              </p>
-            </div>
-
-            {/* Content Switcher */}
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '60px 0' }}>
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  border: '3px solid #27272a',
-                  borderTopColor: 'var(--primary)',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite',
-                  margin: '0 auto 16px auto'
-                }} />
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Fetching guilds...</p>
-                <style dangerouslySetInnerHTML={{__html: `
-                  @keyframes spin {
-                    to { transform: rotate(360deg); }
-                  }
-                `}} />
-              </div>
-            ) : error ? (
-              <div className="glass-panel" style={{ padding: '24px', textAlign: 'center', borderColor: 'var(--danger)', borderRadius: '6px' }}>
-                <p style={{ color: 'var(--danger)', marginBottom: '16px', fontSize: '0.85rem', fontWeight: '500' }}>{error}</p>
-                <button onClick={fetchGuilds} className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.8rem' }}>Retry Sync</button>
-              </div>
-            ) : filteredGuilds.length === 0 ? (
-              <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', borderRadius: '6px' }}>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>No servers found. Confirm you have administrative rights in your guilds.</p>
-              </div>
-            ) : (
-              <div className="server-grid" style={{ gap: '12px' }}>
-                {filteredGuilds.map(guild => (
-                  <div key={guild.id} className="server-card-horizontal" style={{ background: '#09090b', border: '1px solid #27272a', borderRadius: '6px', padding: '16px 20px' }}>
-                    
-                    {/* Left details */}
-                    <div className="server-info-group" style={{ gap: '16px' }}>
-                      {guild.icon ? (
-                        <img 
-                          src={guild.icon} 
-                          alt={guild.name} 
-                          style={{ width: '48px', height: '48px', borderRadius: '50%', border: '1px solid #27272a' }} 
-                        />
-                      ) : (
-                        <div style={{
-                          width: '48px',
-                          height: '48px',
-                          borderRadius: '50%',
-                          backgroundColor: '#18181b',
-                          border: '1px solid #27272a',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '1rem',
-                          fontWeight: '800',
-                          color: '#fff'
-                        }}>
-                          {guild.name.split(' ').map(w => w[0]).join('').substring(0, 3).toUpperCase()}
-                        </div>
-                      )}
-                      
-                      <div className="server-details-list" style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        <h3 className="server-name-label" style={{ fontSize: '1.05rem', fontWeight: '700', color: '#fff', marginBottom: 0 }}>{guild.name}</h3>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span className="badge-status" style={{
-                            backgroundColor: guild.botInGuild ? 'rgba(16, 185, 129, 0.06)' : '#18181b',
-                            color: guild.botInGuild ? 'var(--accent)' : 'var(--text-muted)',
-                            border: `1px solid ${guild.botInGuild ? 'rgba(16, 185, 129, 0.15)' : '#27272a'}`
-                          }}>
-                            {guild.botInGuild ? 'Active' : 'Offline'}
-                          </span>
-                          {guild.memberCount !== undefined && (
-                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                              {guild.memberCount.toLocaleString()} members
-                            </span>
-                          )}
-                        </div>
-                      </div>
+        {/* Content Area */}
+        {loading ? (
+          <div style={{ padding: '80px 0' }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              border: '3px solid #27272a',
+              borderTopColor: 'var(--primary)',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 20px auto'
+            }} />
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Loading Discord guilds...</p>
+            <style dangerouslySetInnerHTML={{__html: `
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            `}} />
+          </div>
+        ) : error ? (
+          <div className="glass-panel" style={{ padding: '30px', maxWidth: '500px', margin: '0 auto', borderColor: 'var(--danger)', borderRadius: '6px' }}>
+            <p style={{ color: 'var(--danger)', marginBottom: '20px', fontSize: '0.85rem' }}>{error}</p>
+            <button onClick={fetchGuilds} className="btn-primary" style={{ padding: '8px 16px', fontSize: '0.8rem' }}>Sync Servers</button>
+          </div>
+        ) : filteredGuilds.length === 0 ? (
+          <div className="glass-panel" style={{ padding: '48px', maxWidth: '600px', margin: '0 auto', borderRadius: '6px' }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>No servers found. Confirm you are an Administrator on at least one server matching your query.</p>
+          </div>
+        ) : (
+          /* Centers the Grid on the screen */
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: '24px',
+            width: '100%',
+            justifyContent: 'center'
+          }}>
+            {filteredGuilds.map(guild => (
+              <div 
+                key={guild.id} 
+                className="glass-panel" 
+                style={{ 
+                  background: '#09090b', 
+                  border: '1px solid #27272a', 
+                  borderRadius: '8px', 
+                  padding: '30px 24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  textAlign: 'center',
+                  minHeight: '260px'
+                }}
+              >
+                {/* Top Details (Icon + Name) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%' }}>
+                  {guild.icon ? (
+                    <img 
+                      src={guild.icon} 
+                      alt={guild.name} 
+                      style={{ 
+                        width: '68px', 
+                        height: '68px', 
+                        borderRadius: '50%', 
+                        border: '1px solid #27272a',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                      }} 
+                    />
+                  ) : (
+                    <div style={{
+                      width: '68px',
+                      height: '68px',
+                      borderRadius: '50%',
+                      backgroundColor: '#18181b',
+                      border: '1px solid #27272a',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.25rem',
+                      fontWeight: '800',
+                      color: 'var(--primary)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                    }}>
+                      {guild.name.split(' ').map(w => w[0]).join('').substring(0, 3).toUpperCase()}
                     </div>
-
-                    {/* Right actions */}
-                    <div style={{ flexShrink: 0 }}>
-                      {guild.botInGuild ? (
-                        <button 
-                          onClick={() => onSelectGuild(guild.id, guild.name, guild.icon)} 
-                          className="btn-primary" 
-                          style={{ padding: '8px 16px', fontSize: '0.8rem', borderRadius: '6px' }}
-                        >
-                          <Settings size={14} />
-                          Configure
-                        </button>
-                      ) : (
-                        <button 
-                          onClick={() => window.open(guild.inviteUrl, '_blank')} 
-                          className="btn-secondary" 
-                          style={{ 
-                            padding: '8px 16px', 
-                            fontSize: '0.8rem', 
-                            borderRadius: '6px',
-                            borderColor: '#27272a',
-                            background: '#000000',
-                            color: 'var(--text-secondary)'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#18181b';
-                            e.currentTarget.style.color = '#fff';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#000000';
-                            e.currentTarget.style.color = 'var(--text-secondary)';
-                          }}
-                        >
-                          Invite Bot
-                        </button>
+                  )}
+                  
+                  <div style={{ width: '100%' }}>
+                    <h3 style={{ 
+                      fontSize: '1.1rem', 
+                      fontWeight: '700', 
+                      color: '#fff', 
+                      letterSpacing: '-0.02em',
+                      marginBottom: '4px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }} title={guild.name}>
+                      {guild.name}
+                    </h3>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '6px' }}>
+                      <span className="badge-status" style={{
+                        backgroundColor: guild.botInGuild ? 'rgba(16, 185, 129, 0.05)' : '#18181b',
+                        color: guild.botInGuild ? 'var(--accent)' : 'var(--text-muted)',
+                        border: `1px solid ${guild.botInGuild ? 'rgba(16, 185, 129, 0.15)' : '#27272a'}`,
+                        fontSize: '0.68rem',
+                        padding: '1px 6px'
+                      }}>
+                        {guild.botInGuild ? 'Active' : 'Offline'}
+                      </span>
+                      {guild.memberCount !== undefined && (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                          {guild.memberCount.toLocaleString()} members
+                        </span>
                       )}
                     </div>
                   </div>
-                ))}
+                </div>
+
+                {/* Bottom Action Button */}
+                <div style={{ width: '100%', marginTop: '24px' }}>
+                  {guild.botInGuild ? (
+                    <button 
+                      onClick={() => onSelectGuild(guild.id, guild.name, guild.icon)} 
+                      className="btn-primary" 
+                      style={{ 
+                        width: '100%', 
+                        justifyContent: 'center', 
+                        fontSize: '0.8rem', 
+                        padding: '10px', 
+                        borderRadius: '6px' 
+                      }}
+                    >
+                      <Settings size={14} />
+                      Configure Guild
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => window.open(guild.inviteUrl, '_blank')} 
+                      className="btn-secondary" 
+                      style={{ 
+                        width: '100%', 
+                        justifyContent: 'center', 
+                        fontSize: '0.8rem', 
+                        padding: '10px', 
+                        borderRadius: '6px',
+                        borderColor: '#27272a',
+                        background: '#000000',
+                        color: 'var(--text-secondary)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#18181b';
+                        e.currentTarget.style.color = '#fff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#000000';
+                        e.currentTarget.style.color = 'var(--text-secondary)';
+                      }}
+                    >
+                      <PlusCircle size={14} />
+                      Invite Bot
+                    </button>
+                  )}
+                </div>
               </div>
-            )}
-          </main>
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
