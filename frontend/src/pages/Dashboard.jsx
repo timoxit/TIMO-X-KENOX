@@ -1388,334 +1388,146 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
           </div>
         )}
 
-        {/* Dashboard Grid */}
-        <div className="settings-grid">
-          
-          {/* Sidebar */}
-          <aside className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', height: 'fit-content' }}>
-            <button 
-              onClick={() => setActiveTab('overview')} 
-              className="btn-secondary" 
-              style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'overview' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'overview' ? 'var(--primary)' : 'transparent'
-              }}
-            >
-              <Info size={16} />
-              Overview
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('moderation')} 
-              className="btn-secondary" 
-              style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'moderation' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'moderation' ? 'var(--primary)' : 'transparent'
-              }}
-            >
-              <Shield size={16} />
-              Moderation
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('welcome')} 
-              className="btn-secondary" 
-              style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'welcome' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'welcome' ? 'var(--primary)' : 'transparent'
-              }}
-            >
-              <Sparkles size={16} />
-              Welcome System
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('verification')} 
-              className="btn-secondary" 
-              style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'verification' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'verification' ? 'var(--primary)' : 'transparent'
-              }}
-            >
-              <UserCheck size={16} />
-              Verification Role
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('tickets')} 
-              className="btn-secondary" 
-              style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'tickets' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'tickets' ? 'var(--primary)' : 'transparent'
-              }}
-            >
-              <Ticket size={16} />
-              Ticket System
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('roles')} 
-              className="btn-secondary" 
-              style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'roles' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'roles' ? 'var(--primary)' : 'transparent'
-              }}
-            >
-              <MessageSquare size={16} />
-              Roles & Nicknames
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('logs')} 
-              className="btn-secondary" 
-              style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'logs' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'logs' ? 'var(--primary)' : 'transparent'
-              }}
-            >
-              <FileText size={16} />
-              Server Logs
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('broadcast')} 
-              className="btn-secondary" 
-              style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'broadcast' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'broadcast' ? 'var(--primary)' : 'transparent'
-              }}
-            >
-              <Send size={16} />
-              Broadcast DMs
-            </button>
-
-            <button 
+        {/* Horizontal Navigation Menu Tab Bar */}
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          overflowX: 'auto',
+          paddingBottom: '12px',
+          borderBottom: '1px solid var(--border-color)',
+          marginBottom: '32px',
+          whiteSpace: 'nowrap',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none'
+        }}>
+          {[
+            { id: 'overview', label: 'Overview', icon: <Info size={14} /> },
+            { id: 'moderation', label: 'Moderation', icon: <Shield size={14} /> },
+            { id: 'welcome', label: 'Welcome System', icon: <Sparkles size={14} /> },
+            { id: 'verification', label: 'Verification Role', icon: <UserCheck size={14} /> },
+            { id: 'tickets', label: 'Ticket System', icon: <Ticket size={14} /> },
+            { id: 'roles', label: 'Roles & Nicknames', icon: <MessageSquare size={14} /> },
+            { id: 'logs', label: 'Server Logs', icon: <FileText size={14} /> },
+            { id: 'broadcast', label: 'Broadcast DMs', icon: <Send size={14} /> },
+            { id: 'publish', label: 'Publish Announcement', icon: <Megaphone size={14} /> },
+            { id: 'youtube', label: 'YouTube Announcements', icon: <Youtube size={14} /> },
+            { id: 'tempvoice', label: 'Temp Voice Channels', icon: <Sparkles size={14} /> }
+          ].map(tab => (
+            <button
+              key={tab.id}
               type="button"
-              onClick={() => setActiveTab('publish')} 
-              className="btn-secondary" 
+              onClick={() => setActiveTab(tab.id)}
+              className={activeTab === tab.id ? 'btn-primary' : 'btn-secondary'}
               style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'publish' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'publish' ? 'var(--primary)' : 'transparent'
+                padding: '8px 16px',
+                fontSize: '0.8rem',
+                borderRadius: '6px',
+                gap: '6px',
+                borderWidth: '1px',
+                background: activeTab === tab.id ? 'var(--primary)' : 'transparent',
+                borderColor: activeTab === tab.id ? 'var(--primary)' : 'var(--border-color)',
+                color: activeTab === tab.id ? '#fff' : 'var(--text-secondary)'
               }}
             >
-              <Megaphone size={16} />
-              Publish Announcement
+              {tab.icon}
+              {tab.label}
             </button>
-
-            <button 
+          ))}
+          {user && user.isAdmin && (
+            <button
               type="button"
-              onClick={() => setActiveTab('youtube')} 
-              className="btn-secondary" 
+              onClick={() => setActiveTab('server-control')}
+              className={activeTab === 'server-control' ? 'btn-primary' : 'btn-secondary'}
               style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'youtube' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'youtube' ? 'var(--primary)' : 'transparent'
+                padding: '8px 16px',
+                fontSize: '0.8rem',
+                borderRadius: '6px',
+                gap: '6px',
+                borderWidth: '1px',
+                background: activeTab === 'server-control' ? 'var(--primary)' : 'transparent',
+                borderColor: activeTab === 'server-control' ? 'var(--primary)' : 'var(--border-color)',
+                color: activeTab === 'server-control' ? '#fff' : 'var(--primary)'
               }}
             >
-              <Youtube size={16} />
-              YouTube Announcements
+              <Server size={14} />
+              Server Control
             </button>
+          )}
+        </div>
 
-            <button 
-              type="button"
-              onClick={() => setActiveTab('tempvoice')} 
-              className="btn-secondary" 
-              style={{
-                width: '100%', 
-                justifyContent: 'flex-start',
-                backgroundColor: activeTab === 'tempvoice' ? 'var(--primary-glow)' : 'transparent',
-                borderColor: activeTab === 'tempvoice' ? 'var(--primary)' : 'transparent'
-              }}
-            >
-              <Sparkles size={16} />
-              Temp Voice Channels
-            </button>
+        {/* Main Settings Panel */}
+        <main className="glass-panel" style={{ padding: '36px', background: '#09090b', border: '1px solid #27272a', borderRadius: '8px', width: '100%', maxWidth: '100%', minWidth: 0 }}>
+          {activeTab === 'server-control' && user && user.isAdmin ? (
+            <AdminServerSettings guildId={guildId} />
+          ) : (
+            <form onSubmit={handleSave}>
+            
+            {/* TAB 1: OVERVIEW */}
+            {activeTab === 'overview' && (
+              <div>
+                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                  <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff', letterSpacing: '-0.04em' }}>Server Overview</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>General status and command manual for the TIMOXITER bot.</p>
+                </div>
 
-            {user && user.isAdmin && (
-              <>
-                <div style={{ height: '1px', backgroundColor: 'var(--border-color)', margin: '6px 0' }} />
-                <button 
-                  type="button"
-                  onClick={() => setActiveTab('server-control')} 
-                  className="btn-secondary" 
-                  style={{
-                    width: '100%', 
-                    justifyContent: 'flex-start',
-                    backgroundColor: activeTab === 'server-control' ? 'var(--primary-glow)' : 'transparent',
-                    borderColor: activeTab === 'server-control' ? 'var(--primary)' : 'transparent',
-                    color: 'var(--primary)',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  <Server size={16} />
-                  Server Control
-                </button>
-              </>
-            )}
-
-            {/* Separator */}
-            <div style={{ height: '1px', backgroundColor: 'var(--border-color)', margin: '12px 0 6px 0' }} />
-
-            {/* Social Links */}
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: 'auto', padding: '8px 0' }}>
-              <a 
-                href="https://discord.gg/ZVfJvw93Ak" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                title="Join Discord"
-                style={{
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '50%',
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid var(--border-color)',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#5865F2';
-                  e.currentTarget.style.borderColor = 'rgba(88, 101, 242, 0.4)';
-                  e.currentTarget.style.background = 'rgba(88, 101, 242, 0.1)';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'var(--text-secondary)';
-                  e.currentTarget.style.borderColor = 'var(--border-color)';
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="currentColor">
-                  <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.45-5c.87-.64,1.72-1.31,2.53-2a75.76,75.76,0,0,0,72.9,0c.81.71,1.66,1.38,2.53,2a68.64,68.64,0,0,1-10.45,5,77.89,77.89,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31-18.83C129.07,48.12,122.9,25.42,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/>
-                </svg>
-              </a>
-              <a 
-                href="https://www.instagram.com/end.of.timo" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                title="Follow Instagram"
-                style={{
-                  color: 'var(--text-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '50%',
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid var(--border-color)',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#E1306C';
-                  e.currentTarget.style.borderColor = 'rgba(225, 48, 108, 0.4)';
-                  e.currentTarget.style.background = 'rgba(225, 48, 108, 0.1)';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'var(--text-secondary)';
-                  e.currentTarget.style.borderColor = 'var(--border-color)';
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                </svg>
-              </a>
-            </div>
-          </aside>
-
-          {/* Main Settings Panel */}
-          <main className="glass-panel" style={{ padding: '32px' }}>
-            {activeTab === 'server-control' && user && user.isAdmin ? (
-              <AdminServerSettings guildId={guildId} />
-            ) : (
-              <form onSubmit={handleSave}>
-              
-              {/* TAB 1: OVERVIEW */}
-              {activeTab === 'overview' && (
-                <div>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: '800', marginBottom: '8px' }}>Server Overview</h2>
-                  <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>General status and command manual for the TIMOXITER bot.</p>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '40px' }}>
-                    <div className="glass-panel" style={{ padding: '20px', textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.02)' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Bot Status</span>
-                      <h3 style={{ fontSize: '1.5rem', marginTop: '6px', color: 'var(--success)' }}>ONLINE</h3>
-                    </div>
-                    <div className="glass-panel" style={{ padding: '20px', textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.02)' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Text Channels</span>
-                      <h3 style={{ fontSize: '1.5rem', marginTop: '6px' }}>{channels.length}</h3>
-                    </div>
-                    <div className="glass-panel" style={{ padding: '20px', textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.02)' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Custom Roles</span>
-                      <h3 style={{ fontSize: '1.5rem', marginTop: '6px' }}>{roles.length}</h3>
-                    </div>
+                {/* Flat Stats Cards */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+                  <div style={{ padding: '24px 20px', textAlign: 'center', background: '#000000', border: '1px solid #27272a', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '600' }}>Bot Status</span>
+                    <h3 style={{ fontSize: '1.6rem', marginTop: '8px', color: 'var(--success)', fontWeight: '800' }}>ONLINE</h3>
                   </div>
-
-                  <h3 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>Manual Slash Commands</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                      <code style={{ color: 'var(--secondary)', backgroundColor: 'rgba(6, 182, 212, 0.1)', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' }}>/userinfo</code>
-                      <div>
-                        <div style={{ fontWeight: '600' }}>Show User Information</div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Fetches joining timeline, registration date, and role lists for a target member or yourself.</div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                      <code style={{ color: 'var(--secondary)', backgroundColor: 'rgba(6, 182, 212, 0.1)', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' }}>/serverinfo</code>
-                      <div>
-                        <div style={{ fontWeight: '600' }}>Show Server Information</div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Visualizes total count of members, channels, roles, server owner, and creation date.</div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                      <code style={{ color: 'var(--secondary)', backgroundColor: 'rgba(6, 182, 212, 0.1)', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' }}>/dashboard</code>
-                      <div>
-                        <div style={{ fontWeight: '600' }}>Dashboard URL Link</div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Replies with an interactive link button directing admins directly to this web configuration panel.</div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                      <code style={{ color: 'var(--secondary)', backgroundColor: 'rgba(6, 182, 212, 0.1)', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' }}>/clear</code>
-                      <div>
-                        <div style={{ fontWeight: '600' }}>Clear Bot Messages</div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Automatically deletes messages sent by the bot from the current chat (optional: specify search amount).</div>
-                      </div>
-                    </div>
+                  <div style={{ padding: '24px 20px', textAlign: 'center', background: '#000000', border: '1px solid #27272a', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '600' }}>Text Channels</span>
+                    <h3 style={{ fontSize: '1.6rem', marginTop: '8px', color: '#ffffff', fontWeight: '800' }}>{channels.length}</h3>
+                  </div>
+                  <div style={{ padding: '24px 20px', textAlign: 'center', background: '#000000', border: '1px solid #27272a', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '600' }}>Custom Roles</span>
+                    <h3 style={{ fontSize: '1.6rem', marginTop: '8px', color: '#ffffff', fontWeight: '800' }}>{roles.length}</h3>
                   </div>
                 </div>
-              )}
+
+                {/* Centered Subtitle */}
+                <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>Slash Command Reference</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Integrated command triggers available directly inside your Discord server.</p>
+                </div>
+
+                {/* Grid of Command Cards */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
+                  <div style={{ padding: '20px', background: '#000000', border: '1px solid #27272a', borderRadius: '6px', textAlign: 'left' }}>
+                    <div style={{ display: 'inline-block', color: 'var(--secondary)', backgroundColor: 'rgba(6, 182, 212, 0.05)', border: '1px solid rgba(6, 182, 212, 0.15)', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace', fontWeight: 'bold', fontSize: '0.8rem', marginBottom: '10px' }}>
+                      /userinfo
+                    </div>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>User Details</h4>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>Fetches joining timeline, account registration date, and role list for a target member.</p>
+                  </div>
+
+                  <div style={{ padding: '20px', background: '#000000', border: '1px solid #27272a', borderRadius: '6px', textAlign: 'left' }}>
+                    <div style={{ display: 'inline-block', color: 'var(--secondary)', backgroundColor: 'rgba(6, 182, 212, 0.05)', border: '1px solid rgba(6, 182, 212, 0.15)', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace', fontWeight: 'bold', fontSize: '0.8rem', marginBottom: '10px' }}>
+                      /serverinfo
+                    </div>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>Server Details</h4>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>Visualizes total member count, role count, active owner ID, and guild creation date.</p>
+                  </div>
+
+                  <div style={{ padding: '20px', background: '#000000', border: '1px solid #27272a', borderRadius: '6px', textAlign: 'left' }}>
+                    <div style={{ display: 'inline-block', color: 'var(--secondary)', backgroundColor: 'rgba(6, 182, 212, 0.05)', border: '1px solid rgba(6, 182, 212, 0.15)', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace', fontWeight: 'bold', fontSize: '0.8rem', marginBottom: '10px' }}>
+                      /dashboard
+                    </div>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>Dashboard Link</h4>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>Replies with an interactive link directing server admins directly to this configuration portal.</p>
+                  </div>
+
+                  <div style={{ padding: '20px', background: '#000000', border: '1px solid #27272a', borderRadius: '6px', textAlign: 'left' }}>
+                    <div style={{ display: 'inline-block', color: 'var(--secondary)', backgroundColor: 'rgba(6, 182, 212, 0.05)', border: '1px solid rgba(6, 182, 212, 0.15)', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace', fontWeight: 'bold', fontSize: '0.8rem', marginBottom: '10px' }}>
+                      /clear
+                    </div>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>Clear Messages</h4>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>Automatically purges messages sent by the bot from the current text channel.</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
               {/* TAB 2: MODERATION */}
               {activeTab === 'moderation' && (
@@ -5025,8 +4837,6 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
           </main>
 
         </div>
-
-      </div>
 
       {showCropModal && uploadFile && (
         <CropModal 
