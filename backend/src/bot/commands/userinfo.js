@@ -4,7 +4,7 @@ module.exports = {
   name: 'userinfo',
   async execute(interaction) {
     const target = interaction.options.getUser('target') || interaction.user;
-    const member = await interaction.guild.members.fetch(target.id).catch(() => null);
+    const member = interaction.guild ? await interaction.guild.members.fetch(target.id).catch(() => null) : null;
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: target.tag, iconURL: target.displayAvatarURL() })

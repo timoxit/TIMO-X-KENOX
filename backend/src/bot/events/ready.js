@@ -1,4 +1,4 @@
-const { REST, Routes, SlashCommandBuilder } = require('discord.js');
+const { REST, Routes, SlashCommandBuilder, ApplicationIntegrationType, InteractionContextType } = require('discord.js');
 const config = require('../../config');
 
 module.exports = {
@@ -15,13 +15,33 @@ module.exports = {
           option.setName('target')
             .setDescription('The user to get info about')
             .setRequired(false)
-        ),
+        )
+        .setIntegrationTypes([
+          ApplicationIntegrationType.GuildInstall,
+          ApplicationIntegrationType.UserInstall
+        ])
+        .setContexts([
+          InteractionContextType.Guild,
+          InteractionContextType.BotDM,
+          InteractionContextType.PrivateChannel
+        ]),
       new SlashCommandBuilder()
         .setName('serverinfo')
-        .setDescription('Shows information about the server'),
+        .setDescription('Shows information about the server')
+        .setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
+        .setContexts([InteractionContextType.Guild]),
       new SlashCommandBuilder()
         .setName('dashboard')
-        .setDescription('Get the link to the dashboard website'),
+        .setDescription('Get the link to the dashboard website')
+        .setIntegrationTypes([
+          ApplicationIntegrationType.GuildInstall,
+          ApplicationIntegrationType.UserInstall
+        ])
+        .setContexts([
+          InteractionContextType.Guild,
+          InteractionContextType.BotDM,
+          InteractionContextType.PrivateChannel
+        ]),
       new SlashCommandBuilder()
         .setName('warn')
         .setDescription('Warns a user and logs the action')
@@ -34,7 +54,9 @@ module.exports = {
           option.setName('reason')
             .setDescription('The reason for warning the user')
             .setRequired(false)
-        ),
+        )
+        .setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
+        .setContexts([InteractionContextType.Guild]),
       new SlashCommandBuilder()
         .setName('clear')
         .setDescription('Clears messages sent by this bot from this chat')
@@ -43,6 +65,8 @@ module.exports = {
             .setDescription('Number of messages to search through (default: 50, max: 100)')
             .setRequired(false)
         )
+        .setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
+        .setContexts([InteractionContextType.Guild])
     ].map(command => command.toJSON());
 
     const rest = new REST({ version: '10' }).setToken(config.discordToken);
