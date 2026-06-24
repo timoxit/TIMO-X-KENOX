@@ -210,7 +210,7 @@ async function processScheduledDMs() {
 async function processExpiredPolls() {
   try {
     const Poll = require('../../database/models/Poll');
-    const { renderPollEmbed, renderPollComponents, generatePollChart } = require('./pollHelper');
+    const { renderPollEmbed, renderPollComponents } = require('./pollHelper');
     const { getIo } = require('../../server/socket');
 
     const now = new Date();
@@ -238,20 +238,7 @@ async function processExpiredPolls() {
               if (message) {
                 const embed = renderPollEmbed(poll, guild);
                 const components = renderPollComponents(poll);
-                
-                const payload = { embeds: [embed], components: components };
-                const showResults = poll.status === 'ended' || poll.settings.showResultsBeforeEnding;
-                if (showResults) {
-                  const { AttachmentBuilder } = require('discord.js');
-                  const chartBuffer = await generatePollChart(poll);
-                  const attachmentName = `poll_chart_${Date.now()}.png`;
-                  embed.setImage(`attachment://${attachmentName}`);
-                  const attachment = new AttachmentBuilder(chartBuffer, { name: attachmentName });
-                  payload.files = [attachment];
-                } else {
-                  payload.files = [];
-                }
-                await message.edit(payload);
+                await message.edit({ embeds: [embed], components: components });
               }
             } catch (msgErr) {
               console.warn(`[Scheduler Warning] Could not edit Discord message ${poll.messageId} to end expired poll:`, msgErr.message);

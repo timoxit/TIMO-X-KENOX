@@ -1,6 +1,6 @@
-const { MessageFlags, AttachmentBuilder } = require('discord.js');
+const { MessageFlags } = require('discord.js');
 const Poll = require('../../database/models/Poll');
-const { renderPollEmbed, renderPollComponents, generatePollChart } = require('../utils/pollHelper');
+const { renderPollEmbed, renderPollComponents } = require('../utils/pollHelper');
 const { getIo } = require('../../server/socket');
 
 module.exports = {
@@ -62,18 +62,11 @@ module.exports = {
       const embed = renderPollEmbed(poll, interaction.guild);
       const components = renderPollComponents(poll);
 
-      const payload = { embeds: [embed], components: components };
-      const showResults = poll.status === 'ended' || poll.settings.showResultsBeforeEnding;
-      if (showResults) {
-        const chartBuffer = await generatePollChart(poll);
-        const attachmentName = `poll_chart_${Date.now()}.png`;
-        embed.setImage(`attachment://${attachmentName}`);
-        const attachment = new AttachmentBuilder(chartBuffer, { name: attachmentName });
-        payload.files = [attachment];
-      }
-
       // Send poll
-      const replyMessage = await interaction.editReply(payload);
+      const replyMessage = await interaction.editReply({
+        embeds: [embed],
+        components: components
+      });
 
       // Update message ID
       poll.messageId = replyMessage.id;

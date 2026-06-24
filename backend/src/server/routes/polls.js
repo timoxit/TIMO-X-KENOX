@@ -4,8 +4,7 @@ const client = require('../../bot/client');
 const authMiddleware = require('../middleware/auth');
 const Poll = require('../../database/models/Poll');
 const { getIo } = require('../socket');
-const { AttachmentBuilder } = require('discord.js');
-const { renderPollEmbed, renderPollComponents, generatePollChart } = require('../../bot/utils/pollHelper');
+const { renderPollEmbed, renderPollComponents } = require('../../bot/utils/pollHelper');
 
 // Get all polls for a guild
 router.get('/:guildId', authMiddleware, async (req, res) => {
@@ -72,18 +71,11 @@ router.post('/:guildId', authMiddleware, async (req, res) => {
     const embed = renderPollEmbed(poll, guild);
     const components = renderPollComponents(poll);
 
-    const payload = { embeds: [embed], components: components };
-    const showResults = poll.status === 'ended' || poll.settings.showResultsBeforeEnding;
-    if (showResults) {
-      const chartBuffer = await generatePollChart(poll);
-      const attachmentName = `poll_chart_${Date.now()}.png`;
-      embed.setImage(`attachment://${attachmentName}`);
-      const attachment = new AttachmentBuilder(chartBuffer, { name: attachmentName });
-      payload.files = [attachment];
-    }
-
     // Send to Discord
-    const message = await channel.send(payload);
+    const message = await channel.send({
+      embeds: [embed],
+      components: components
+    });
 
     // Update message ID and save
     poll.messageId = message.id;
@@ -128,18 +120,7 @@ router.post('/:guildId/:pollId/end', authMiddleware, async (req, res) => {
             const embed = renderPollEmbed(poll, guild);
             const components = renderPollComponents(poll);
             
-            const payload = { embeds: [embed], components: components };
-            const showResults = poll.status === 'ended' || poll.settings.showResultsBeforeEnding;
-            if (showResults) {
-              const chartBuffer = await generatePollChart(poll);
-              const attachmentName = `poll_chart_${Date.now()}.png`;
-              embed.setImage(`attachment://${attachmentName}`);
-              const attachment = new AttachmentBuilder(chartBuffer, { name: attachmentName });
-              payload.files = [attachment];
-            } else {
-              payload.files = [];
-            }
-            await message.edit(payload);
+            await message.edit({ embeds: [embed], components: components });
           }
         } catch (msgErr) {
           console.warn(`[Server Polls Warning] Could not edit Discord message ${poll.messageId} to end poll:`, msgErr.message);

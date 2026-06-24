@@ -1,5 +1,5 @@
 const { getGuildSettings } = require('../../database/settingsManager');
-const { MessageFlags, AttachmentBuilder } = require('discord.js');
+const { MessageFlags } = require('discord.js');
 
 module.exports = {
   name: 'interactionCreate',
@@ -226,8 +226,7 @@ module.exports = {
           const optionId = parts.slice(2).join('_');
 
           const Poll = require('../../database/models/Poll');
-          const { AttachmentBuilder } = require('discord.js');
-          const { renderPollEmbed, renderPollComponents, generatePollChart } = require('../utils/pollHelper');
+          const { renderPollEmbed, renderPollComponents } = require('../utils/pollHelper');
           const { getIo } = require('../../server/socket');
 
           const poll = await Poll.findById(pollId);
@@ -245,19 +244,7 @@ module.exports = {
             
             const embed = renderPollEmbed(poll, interaction.guild);
             const components = renderPollComponents(poll);
-            
-            const payload = { embeds: [embed], components: components };
-            const showResults = poll.status === 'ended' || poll.settings.showResultsBeforeEnding;
-            if (showResults) {
-              const chartBuffer = await generatePollChart(poll);
-              const attachmentName = `poll_chart_${Date.now()}.png`;
-              embed.setImage(`attachment://${attachmentName}`);
-              const attachment = new AttachmentBuilder(chartBuffer, { name: attachmentName });
-              payload.files = [attachment];
-            } else {
-              payload.files = [];
-            }
-            await interaction.message.edit(payload);
+            await interaction.message.edit({ embeds: [embed], components: components });
 
             const io = getIo();
             if (io) io.to(`guild_${interaction.guildId}`).emit('poll_update', poll);
@@ -311,19 +298,7 @@ module.exports = {
           // Refresh the Discord message
           const embed = renderPollEmbed(poll, interaction.guild);
           const components = renderPollComponents(poll);
-          
-          const payload = { embeds: [embed], components: components };
-          const showResults = poll.status === 'ended' || poll.settings.showResultsBeforeEnding;
-          if (showResults) {
-            const chartBuffer = await generatePollChart(poll);
-            const attachmentName = `poll_chart_${Date.now()}.png`;
-            embed.setImage(`attachment://${attachmentName}`);
-            const attachment = new AttachmentBuilder(chartBuffer, { name: attachmentName });
-            payload.files = [attachment];
-          } else {
-            payload.files = [];
-          }
-          await interaction.message.edit(payload);
+          await interaction.message.edit({ embeds: [embed], components: components });
 
           // Emit Socket.io update
           const io = getIo();

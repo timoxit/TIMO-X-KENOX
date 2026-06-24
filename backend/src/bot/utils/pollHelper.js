@@ -234,11 +234,54 @@ async function generatePollChart(poll) {
 }
 
 
-function createProgressBar(percentage) {
+function getEmojiForColor(hex) {
+  if (!hex) return '🟦';
+  const cleanHex = hex.toLowerCase().replace('#', '');
+  
+  let hexVal = cleanHex;
+  if (cleanHex.length === 3) {
+    hexVal = cleanHex.replace(/(.)/g, '$1$1');
+  }
+  
+  let r = parseInt(hexVal.substring(0, 2), 16) || 0;
+  let g = parseInt(hexVal.substring(2, 4), 16) || 0;
+  let b = parseInt(hexVal.substring(4, 6), 16) || 0;
+  
+  const colors = [
+    { emoji: '🟥', r: 239, g: 68, b: 68 },
+    { emoji: '🟧', r: 249, g: 115, b: 22 },
+    { emoji: '🟨', r: 234, g: 179, b: 8 },
+    { emoji: '🟩', r: 34, g: 197, b: 94 },
+    { emoji: '🟦', r: 59, g: 130, b: 246 },
+    { emoji: '🟪', r: 168, g: 85, b: 247 },
+    { emoji: '🟫', r: 120, g: 53, b: 4 },
+    { emoji: '⬜', r: 255, g: 255, b: 255 }
+  ];
+  
+  let closestEmoji = '🟦';
+  let minDistance = Infinity;
+  
+  for (const c of colors) {
+    const distance = Math.sqrt(
+      Math.pow(r - c.r, 2) +
+      Math.pow(g - c.g, 2) +
+      Math.pow(b - c.b, 2)
+    );
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestEmoji = c.emoji;
+    }
+  }
+  
+  return closestEmoji;
+}
+
+function createProgressBar(percentage, hexColor) {
+  const filledEmoji = getEmojiForColor(hexColor || '#2563eb');
   const totalBlocks = 10;
   const filledBlocks = Math.round((percentage / 100) * totalBlocks);
   const emptyBlocks = totalBlocks - filledBlocks;
-  return '█'.repeat(filledBlocks) + '░'.repeat(emptyBlocks);
+  return filledEmoji.repeat(filledBlocks) + '⬛'.repeat(emptyBlocks);
 }
 
 /**
@@ -269,6 +312,15 @@ function renderPollEmbed(poll, guild) {
   let fieldsText = '';
   const showResults = isEnded || poll.settings.showResultsBeforeEnding;
 
+  // Find max votes to highlight the winner when ended
+  let maxVotes = 0;
+  if (isEnded) {
+    poll.options.forEach(opt => {
+      const count = opt.votes ? opt.votes.length : 0;
+      if (count > maxVotes) maxVotes = count;
+    });
+  }
+
   poll.options.forEach((opt, idx) => {
     const votesCount = opt.votes ? opt.votes.length : 0;
     let percentage = 0;
@@ -276,11 +328,14 @@ function renderPollEmbed(poll, guild) {
       percentage = Math.round((votesCount / totalUniqueVoters) * 100);
     }
 
+    const isWinner = isEnded && votesCount > 0 && votesCount === maxVotes;
+    const optionText = isWinner ? `👑 **${opt.text}**` : `**${opt.text}**`;
+
     if (showResults) {
-      const progressBar = createProgressBar(percentage);
-      fieldsText += `**${idx + 1}. ${opt.text}**\n${progressBar} ${percentage}% (${votesCount} vote${votesCount === 1 ? '' : 's'})\n\n`;
+      const progressBar = createProgressBar(percentage, poll.settings?.color);
+      fieldsText += `${idx + 1}. ${optionText}\n${progressBar} **${percentage}%** (${votesCount} vote${votesCount === 1 ? '' : 's'})\n\n`;
     } else {
-      fieldsText += `**${idx + 1}. ${opt.text}**\n\n`;
+      fieldsText += `${idx + 1}. ${optionText}\n\n`;
     }
   });
 
