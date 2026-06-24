@@ -66,8 +66,24 @@ module.exports = {
             .setRequired(false)
         )
         .setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
+        .setContexts([InteractionContextType.Guild]),
+      new SlashCommandBuilder()
+        .setName('poll')
+        .setDescription('Create a quick poll in this channel')
+        .addStringOption(option => 
+          option.setName('question')
+            .setDescription('The question for the poll')
+            .setRequired(true)
+        )
+        .addStringOption(option => 
+          option.setName('options')
+            .setDescription('Comma-separated list of options (e.g. Yes, No, Maybe - max 10)')
+            .setRequired(true)
+        )
+        .setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
         .setContexts([InteractionContextType.Guild])
     ].map(command => command.toJSON());
+
 
     const rest = new REST({ version: '10' }).setToken(config.discordToken);
 

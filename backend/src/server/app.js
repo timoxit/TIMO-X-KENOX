@@ -4,6 +4,8 @@ const authRouter = require('./routes/auth');
 const guildsRouter = require('./routes/guilds');
 const settingsRouter = require('./routes/settings');
 const adminRouter = require('./routes/admin');
+const pollsRouter = require('./routes/polls');
+
 const config = require('../config');
 
 const path = require('path');
@@ -42,6 +44,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/guilds', guildsRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/polls', pollsRouter);
+
 
 app.get('/health', (req, res) => {
   const client = require('../bot/client');

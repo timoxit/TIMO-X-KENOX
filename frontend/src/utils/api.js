@@ -218,5 +218,17 @@ export const api = {
   resolveYoutubeChannel: (guildId, url) => request(`/settings/${guildId}/youtube/resolve`, {
     method: 'POST',
     body: JSON.stringify({ url })
+  }),
+  getPolls: (guildId) => request(`/polls/${guildId}`),
+  createPoll: (guildId, data) => request(`/polls/${guildId}`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }),
+  endPoll: (guildId, pollId) => request(`/polls/${guildId}/${pollId}/end`, {
+    method: 'POST'
+  }),
+  deletePoll: (guildId, pollId) => request(`/polls/${guildId}/${pollId}`, {
+    method: 'DELETE'
   })
 };
+

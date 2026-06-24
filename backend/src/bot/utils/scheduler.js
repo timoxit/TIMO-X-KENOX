@@ -207,16 +207,74 @@ async function processScheduledDMs() {
   }
 }
 
+async function processExpiredPolls() {
+  try {
+    const Poll = require('../../database/models/Poll');
+    const { renderPollEmbed, renderPollComponents } = require('./pollHelper');
+    const { getIo } = require('../../server/socket');
+
+    const now = new Date();
+    // Find active polls whose expiresAt is <= now
+    const expiredPolls = await Poll.find({
+      status: 'active',
+      'settings.expiresAt': { $lte: now }
+    });
+
+    if (expiredPolls.length === 0) return;
+
+    console.log(`[Scheduler] Found ${expiredPolls.length} expired polls to close.`);
+
+    for (const poll of expiredPolls) {
+      try {
+        poll.status = 'ended';
+        await poll.save();
+
+        const guild = client.guilds.cache.get(poll.guildId);
+        if (guild) {
+          const channel = guild.channels.cache.get(poll.channelId);
+          if (channel) {
+            try {
+              const message = await channel.messages.fetch(poll.messageId);
+              if (message) {
+                const embed = renderPollEmbed(poll, guild);
+                const components = renderPollComponents(poll);
+                await message.edit({ embeds: [embed], components: components });
+              }
+            } catch (msgErr) {
+              console.warn(`[Scheduler Warning] Could not edit Discord message ${poll.messageId} to end expired poll:`, msgErr.message);
+            }
+          }
+        }
+
+        // Emit Socket.io update
+        const io = getIo();
+        if (io) {
+          io.to(`guild_${poll.guildId}`).emit('poll_update', poll);
+        }
+
+        console.log(`[Scheduler] Closed expired poll ID ${poll._id}`);
+      } catch (err) {
+        console.error(`[Scheduler Error] Failed to process expired poll ID ${poll._id}:`, err.message);
+      }
+    }
+  } catch (error) {
+    console.error(`[Scheduler Critical Error for Polls]`, error.message);
+  }
+}
+
 function startAnnouncementScheduler() {
-  console.log('[Scheduler] Starting scheduled announcement & DM checker (every 30 seconds)...');
+  console.log('[Scheduler] Starting scheduled announcement, DM & poll checker (every 30 seconds)...');
   // Run once immediately on start
   processScheduledAnnouncements();
   processScheduledDMs();
+  processExpiredPolls();
 
   setInterval(() => {
     processScheduledAnnouncements();
     processScheduledDMs();
+    processExpiredPolls();
   }, 30000);
 }
 
 module.exports = { startAnnouncementScheduler };
+

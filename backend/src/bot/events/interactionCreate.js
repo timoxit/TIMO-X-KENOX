@@ -215,6 +215,103 @@ module.exports = {
           console.error('[Bot] Error during ticket cancel closing:', error);
         }
       }
+
+      // Poll button vote interaction
+      if (interaction.customId.startsWith('pv_')) {
+        try {
+          await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+          const parts = interaction.customId.split('_');
+          const pollId = parts[1];
+          const optionId = parts.slice(2).join('_');
+
+          const Poll = require('../../database/models/Poll');
+          const { renderPollEmbed, renderPollComponents } = require('../utils/pollHelper');
+          const { getIo } = require('../../server/socket');
+
+          const poll = await Poll.findById(pollId);
+          if (!poll) {
+            return interaction.editReply({ content: '❌ Poll not found in database.' });
+          }
+
+          if (poll.status === 'ended') {
+            return interaction.editReply({ content: '❌ This poll has already ended.' });
+          }
+
+          if (poll.settings.expiresAt && new Date(poll.settings.expiresAt) <= new Date()) {
+            poll.status = 'ended';
+            await poll.save();
+            
+            const embed = renderPollEmbed(poll, interaction.guild);
+            const components = renderPollComponents(poll);
+            await interaction.message.edit({ embeds: [embed], components: components });
+
+            const io = getIo();
+            if (io) io.to(`guild_${interaction.guildId}`).emit('poll_update', poll);
+
+            return interaction.editReply({ content: '❌ This poll has expired.' });
+          }
+
+          const userId = interaction.user.id;
+          const option = poll.options.find(opt => opt.id === optionId);
+          if (!option) {
+            return interaction.editReply({ content: '❌ Selected option not found.' });
+          }
+
+          let responseMsg = '';
+
+          if (poll.settings.multipleChoice) {
+            // Multiple Choice
+            const voterIndex = option.votes.indexOf(userId);
+            if (voterIndex > -1) {
+              option.votes.splice(voterIndex, 1);
+              responseMsg = `Your vote for **"${option.text}"** has been retracted.`;
+            } else {
+              option.votes.push(userId);
+              responseMsg = `Your vote for **"${option.text}"** has been registered.`;
+            }
+          } else {
+            // Single Choice
+            let previouslyVotedOpt = null;
+            poll.options.forEach(opt => {
+              const idx = opt.votes.indexOf(userId);
+              if (idx > -1) {
+                previouslyVotedOpt = opt;
+                opt.votes.splice(idx, 1);
+              }
+            });
+
+            if (previouslyVotedOpt && previouslyVotedOpt.id === optionId) {
+              responseMsg = `Your vote for **"${option.text}"** has been retracted.`;
+            } else {
+              option.votes.push(userId);
+              if (previouslyVotedOpt) {
+                responseMsg = `Your vote has been updated from **"${previouslyVotedOpt.text}"** to **"${option.text}"**.`;
+              } else {
+                responseMsg = `Your vote for **"${option.text}"** has been registered.`;
+              }
+            }
+          }
+
+          await poll.save();
+
+          // Refresh the Discord message
+          const embed = renderPollEmbed(poll, interaction.guild);
+          const components = renderPollComponents(poll);
+          await interaction.message.edit({ embeds: [embed], components: components });
+
+          // Emit Socket.io update
+          const io = getIo();
+          if (io) {
+            io.to(`guild_${interaction.guildId}`).emit('poll_update', poll);
+          }
+
+          await interaction.editReply({ content: `✅ ${responseMsg}` });
+        } catch (err) {
+          console.error('[Bot interactionCreate Error] Poll button interaction failed:', err);
+          await interaction.editReply({ content: '❌ Failed to process your vote: ' + err.message });
+        }
+      }
     }
   }
 };

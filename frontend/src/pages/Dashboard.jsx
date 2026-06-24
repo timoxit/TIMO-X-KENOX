@@ -22,8 +22,10 @@ import {
   Server,
   Edit3,
   Plus,
-  Video
+  Video,
+  BarChart2
 } from 'lucide-react';
+
 
 const Youtube = ({ size = 24, className = '', style = {} }) => (
   <svg 
@@ -500,6 +502,22 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
   const [templateName, setTemplateName] = useState('');
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [templateTypeForModal, setTemplateTypeForModal] = useState('announcement');
+
+  // Premium Polls State Hooks
+  const [polls, setPolls] = useState([]);
+  const [pollQuestion, setPollQuestion] = useState('');
+  const [pollDescription, setPollDescription] = useState('');
+  const [pollOptions, setPollOptions] = useState(['', '']);
+  const [pollChannelId, setPollChannelId] = useState('');
+  const [pollMultipleChoice, setPollMultipleChoice] = useState(false);
+  const [pollAnonymous, setPollAnonymous] = useState(false);
+  const [pollShowResultsBeforeEnding, setPollShowResultsBeforeEnding] = useState(true);
+  const [pollExpiresAt, setPollExpiresAt] = useState('');
+  const [pollColor, setPollColor] = useState('#2563eb');
+  const [pollImageUrl, setPollImageUrl] = useState('');
+  const [pollThumbnailUrl, setPollThumbnailUrl] = useState('');
+  const [creatingPoll, setCreatingPoll] = useState(false);
+
 
 
 
@@ -987,6 +1005,100 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
     }
   };
 
+  // Premium Poll Helpers
+  const fetchPolls = async () => {
+    try {
+      const data = await api.getPolls(guildId);
+      setPolls(data);
+    } catch (err) {
+      console.error('Failed to fetch polls:', err.message);
+    }
+  };
+
+  const handleCreatePoll = async (e) => {
+    if (e) e.preventDefault();
+    if (!pollChannelId) {
+      setErrorMsg('Please select a target channel.');
+      return;
+    }
+    if (!pollQuestion.trim()) {
+      setErrorMsg('Please enter a question.');
+      return;
+    }
+    const filteredOptions = pollOptions.map(opt => opt.trim()).filter(Boolean);
+    if (filteredOptions.length < 2) {
+      setErrorMsg('Please enter at least two options.');
+      return;
+    }
+
+    setCreatingPoll(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    const payload = {
+      channelId: pollChannelId,
+      question: pollQuestion,
+      description: pollDescription,
+      options: filteredOptions,
+      settings: {
+        multipleChoice: pollMultipleChoice,
+        anonymous: pollAnonymous,
+        showResultsBeforeEnding: pollShowResultsBeforeEnding,
+        expiresAt: pollExpiresAt || undefined,
+        color: pollColor,
+        imageUrl: pollImageUrl || undefined,
+        thumbnailUrl: pollThumbnailUrl || undefined
+      }
+    };
+
+    try {
+      await api.createPoll(guildId, payload);
+      showNotification('Poll created and published to Discord successfully!');
+      
+      // Reset form
+      setPollQuestion('');
+      setPollDescription('');
+      setPollOptions(['', '']);
+      setPollMultipleChoice(false);
+      setPollAnonymous(false);
+      setPollShowResultsBeforeEnding(true);
+      setPollExpiresAt('');
+      setPollColor('#2563eb');
+      setPollImageUrl('');
+      setPollThumbnailUrl('');
+      
+      fetchPolls();
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err.message || 'Failed to create poll.');
+    } finally {
+      setCreatingPoll(false);
+    }
+  };
+
+  const handleEndPoll = async (pollId) => {
+    if (!window.confirm('Are you sure you want to end this poll immediately? Voters will not be able to vote anymore.')) return;
+    try {
+      await api.endPoll(guildId, pollId);
+      showNotification('Poll ended successfully.');
+      fetchPolls();
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to end poll.');
+    }
+  };
+
+  const handleDeletePoll = async (pollId) => {
+    if (!window.confirm('Are you sure you want to delete this poll? The Discord message will be deleted, and all vote data will be removed.')) return;
+    try {
+      await api.deletePoll(guildId, pollId);
+      showNotification('Poll deleted successfully.');
+      fetchPolls();
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to delete poll.');
+    }
+  };
+
+
   // Load Channels, Roles, and Settings
   useEffect(() => {
     const loadData = async () => {
@@ -1041,13 +1153,31 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
       }
     });
 
+    newSocket.on('poll_update', (updatedPoll) => {
+      setPolls(prev => {
+        const index = prev.findIndex(p => p._id === updatedPoll._id);
+        if (index > -1) {
+          const newPolls = [...prev];
+          newPolls[index] = updatedPoll;
+          return newPolls;
+        } else {
+          return [updatedPoll, ...prev];
+        }
+      });
+    });
+
+    newSocket.on('poll_delete', ({ pollId }) => {
+      setPolls(prev => prev.filter(p => p._id !== pollId));
+    });
+
     return () => {
       newSocket.emit('leave_guild', guildId);
       newSocket.disconnect();
     };
+
   }, [guildId]);
 
-  // Load templates & scheduled posts on tab changes
+  // Load templates, scheduled posts & polls on tab changes
   useEffect(() => {
     if (activeTab === 'publish') {
       fetchTemplates('announcement');
@@ -1057,8 +1187,11 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
       fetchScheduledDMs();
       fetchBroadcastsHistory();
       setActiveBroadcastProgress(null); // Reset preview
+    } else if (activeTab === 'polls') {
+      fetchPolls();
     }
   }, [activeTab, guildId]);
+
 
   // Load moderation logs when active tab is logs
   useEffect(() => {
@@ -1407,9 +1540,11 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
             { id: 'logs', label: 'Server Logs', icon: <FileText size={14} /> },
             { id: 'broadcast', label: 'Broadcast DMs', icon: <Send size={14} /> },
             { id: 'publish', label: 'Publish Announcement', icon: <Megaphone size={14} /> },
+            { id: 'polls', label: 'Premium Polls', icon: <BarChart2 size={14} /> },
             { id: 'youtube', label: 'YouTube Announcements', icon: <Youtube size={14} /> },
             { id: 'tempvoice', label: 'Temp Voice Channels', icon: <Sparkles size={14} /> }
           ].map(tab => (
+
             <button
               key={tab.id}
               type="button"
@@ -4814,8 +4949,388 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
                 </div>
               )}
 
+
+              {/* TAB 8.8: PREMIUM POLLS */}
+              {activeTab === 'polls' && (
+                <div>
+                  <h2 style={{ fontSize: '1.8rem', fontWeight: '800', marginBottom: '8px' }}>Premium Poll Creator</h2>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Create interactive polls with Discord button options, live progress embeds, and automated expiration.</p>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', alignItems: 'flex-start', marginBottom: '40px' }}>
+                    {/* Left Column: Creator Form */}
+                    <div style={{ flex: '2 1 500px', display: 'flex', flexDirection: 'column', gap: '20px', minWidth: 0 }}>
+                      
+                      {/* Target Channel */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>Target Discord Channel <span style={{ color: 'var(--danger)' }}>*</span></label>
+                        <select 
+                          value={pollChannelId}
+                          onChange={(e) => setPollChannelId(e.target.value)}
+                          className="glass-input"
+                        >
+                          <option value="">-- Select Discord Channel --</option>
+                          {channels.map(ch => (
+                            <option key={ch.id} value={ch.id}># {ch.name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Question */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>Poll Question <span style={{ color: 'var(--danger)' }}>*</span></label>
+                        <input 
+                          type="text" 
+                          value={pollQuestion}
+                          onChange={(e) => setPollQuestion(e.target.value)}
+                          maxLength={256}
+                          className="glass-input"
+                          placeholder="e.g., What feature should we build next?"
+                        />
+                      </div>
+
+                      {/* Description */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>Description / Details (Optional)</label>
+                        <textarea 
+                          rows="3"
+                          value={pollDescription}
+                          onChange={(e) => setPollDescription(e.target.value)}
+                          maxLength={1024}
+                          className="glass-input"
+                          placeholder="Provide context or explanation for the poll..."
+                        />
+                      </div>
+
+                      {/* Options Configuration */}
+                      <div className="glass-panel" style={{ padding: '16px', border: '1px solid var(--border-color)', backgroundColor: 'rgba(0,0,0,0.1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                          <h4 style={{ fontSize: '0.95rem', fontWeight: '700', margin: 0 }}>Poll Options ({pollOptions.length}/10)</h4>
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              if (pollOptions.length < 10) setPollOptions([...pollOptions, '']);
+                            }}
+                            disabled={pollOptions.length >= 10}
+                            className="btn-success"
+                            style={{ padding: '4px 10px', fontSize: '0.8rem' }}
+                          >
+                            + Add Option
+                          </button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          {pollOptions.map((opt, idx) => (
+                            <div key={idx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', minWidth: '24px', fontWeight: '600' }}>#{idx + 1}</span>
+                              <input 
+                                type="text"
+                                value={opt}
+                                onChange={(e) => {
+                                  const updated = [...pollOptions];
+                                  updated[idx] = e.target.value;
+                                  setPollOptions(updated);
+                                }}
+                                className="glass-input"
+                                placeholder={`Option ${idx + 1}`}
+                                maxLength={80}
+                              />
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  if (pollOptions.length > 2) {
+                                    setPollOptions(pollOptions.filter((_, i) => i !== idx));
+                                  } else {
+                                    alert('A poll must have at least 2 options.');
+                                  }
+                                }}
+                                className="btn-danger"
+                                style={{ padding: '8px 12px', height: '38px', display: 'flex', alignItems: 'center' }}
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Advanced Settings Row */}
+                      <div className="glass-panel" style={{ padding: '16px', border: '1px solid var(--border-color)', backgroundColor: 'rgba(0,0,0,0.1)' }}>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: '700', marginBottom: '14px' }}>Poll Settings</h4>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <span style={{ fontSize: '0.88rem', fontWeight: '600' }}>Allow Multiple Choices</span>
+                              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>Voters can select more than one option.</p>
+                            </div>
+                            <label className="switch">
+                              <input 
+                                type="checkbox"
+                                checked={pollMultipleChoice}
+                                onChange={(e) => setPollMultipleChoice(e.target.checked)}
+                              />
+                              <span className="slider"></span>
+                            </label>
+                          </div>
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
+                            <div>
+                              <span style={{ fontSize: '0.88rem', fontWeight: '600' }}>Anonymous Voting</span>
+                              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>Hide the identity of voters (votes count will still update).</p>
+                            </div>
+                            <label className="switch">
+                              <input 
+                                type="checkbox"
+                                checked={pollAnonymous}
+                                onChange={(e) => setPollAnonymous(e.target.checked)}
+                              />
+                              <span className="slider"></span>
+                            </label>
+                          </div>
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
+                            <div>
+                              <span style={{ fontSize: '0.88rem', fontWeight: '600' }}>Show Live Results</span>
+                              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>Allow users to see current vote counts in Discord before ending.</p>
+                            </div>
+                            <label className="switch">
+                              <input 
+                                type="checkbox"
+                                checked={pollShowResultsBeforeEnding}
+                                onChange={(e) => setPollShowResultsBeforeEnding(e.target.checked)}
+                              />
+                              <span className="slider"></span>
+                            </label>
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
+                            <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Auto-Expiration Date & Time (Optional)</label>
+                            <input 
+                              type="datetime-local"
+                              value={pollExpiresAt}
+                              onChange={(e) => setPollExpiresAt(e.target.value)}
+                              className="glass-input"
+                              style={{ width: '100%' }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Embed Customization */}
+                      <div className="glass-panel" style={{ padding: '16px', border: '1px solid var(--border-color)', backgroundColor: 'rgba(0,0,0,0.1)' }}>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: '700', marginBottom: '14px' }}>Style Customization</h4>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Embed Color</label>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <input 
+                                  type="color" 
+                                  value={pollColor}
+                                  onChange={(e) => setPollColor(e.target.value)}
+                                  style={{ width: '40px', height: '40px', padding: '0', border: '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', background: 'none' }}
+                                />
+                                <input 
+                                  type="text" 
+                                  value={pollColor}
+                                  onChange={(e) => setPollColor(e.target.value)}
+                                  className="glass-input" 
+                                  placeholder="#2563eb"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Thumbnail URL</label>
+                              <input 
+                                type="text"
+                                value={pollThumbnailUrl}
+                                onChange={(e) => setPollThumbnailUrl(e.target.value)}
+                                className="glass-input"
+                                placeholder="https://example.com/thumbnail.png"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Image URL</label>
+                            <input 
+                              type="text"
+                              value={pollImageUrl}
+                              onChange={(e) => setPollImageUrl(e.target.value)}
+                              className="glass-input"
+                              placeholder="https://example.com/banner.png"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Button */}
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                        <button 
+                          type="button" 
+                          onClick={handleCreatePoll} 
+                          disabled={creatingPoll} 
+                          className="btn-primary pulse-glow"
+                          style={{ gap: '10px' }}
+                        >
+                          <Send size={18} />
+                          {creatingPoll ? 'Publishing...' : 'Publish Poll'}
+                        </button>
+                      </div>
+
+                    </div>
+
+                    {/* Right Column: Live Discord Preview */}
+                    <div style={{ 
+                      flex: '1 0 350px',
+                      maxWidth: '520px',
+                      position: 'sticky', 
+                      top: '20px', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: '12px' 
+                    }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                        <Eye size={14} />
+                        Live Discord Preview
+                      </span>
+                      <DiscordMessagePreview 
+                        botUser={{ username: user?.username }}
+                        guildName={guildName}
+                        guildIcon={guildIcon}
+                        message={pollDescription}
+                        buttonEnabled={false}
+                        buttonLabel=""
+                        embedEnabled={true}
+                        embedTitle={`Poll: ${pollQuestion || 'Enter Question'}`}
+                        embedDesc={pollDescription}
+                        embedColor={pollColor}
+                        embedThumb={pollThumbnailUrl}
+                        embedImage={pollImageUrl}
+                        isDM={false}
+                        buttons={pollOptions.filter(Boolean).map(opt => ({ label: opt }))}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Polls History & Live Stats */}
+                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '32px' }}>
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '20px' }}>Manage Server Polls</h3>
+                    
+                    {polls.length === 0 ? (
+                      <div style={{ padding: '40px', textAlign: 'center', background: '#000000', border: '1px solid #27272a', borderRadius: '8px' }}>
+                        <p style={{ color: 'var(--text-secondary)', margin: 0 }}>No polls found for this server. Create your first poll above or using <code>/poll</code> in Discord!</p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+                        {polls.map(poll => {
+                          const allVoters = new Set();
+                          poll.options.forEach(opt => {
+                            if (opt.votes) opt.votes.forEach(v => allVoters.add(v));
+                          });
+                          const totalVotes = allVoters.size;
+                          const isPollActive = poll.status === 'active';
+
+                          return (
+                            <div 
+                              key={poll._id} 
+                              className="glass-panel" 
+                              style={{ 
+                                padding: '20px', 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                justifyContent: 'space-between',
+                                border: '1px solid #27272a', 
+                                backgroundColor: '#000000'
+                              }}
+                            >
+                              <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                                  <span style={{ 
+                                    fontSize: '0.75rem', 
+                                    padding: '2px 8px', 
+                                    borderRadius: '4px', 
+                                    fontWeight: 'bold',
+                                    backgroundColor: isPollActive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)',
+                                    color: isPollActive ? 'var(--success)' : 'var(--text-secondary)'
+                                  }}>
+                                    {isPollActive ? 'ACTIVE' : 'ENDED'}
+                                  </span>
+                                  <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                                    {new Date(poll.createdAt).toLocaleDateString()}
+                                  </span>
+                                </div>
+
+                                <h4 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'white', marginBottom: '6px' }}>{poll.question}</h4>
+                                {poll.description && (
+                                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '16px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                    {poll.description}
+                                  </p>
+                                )}
+
+                                {/* Progress Bars */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', margin: '16px 0' }}>
+                                  {poll.options.map((opt, idx) => {
+                                    const optVotes = opt.votes ? opt.votes.length : 0;
+                                    const pct = totalVotes > 0 ? Math.round((optVotes / totalVotes) * 100) : 0;
+
+                                    return (
+                                      <div key={opt.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '2px' }}>
+                                          <span style={{ color: 'var(--text-secondary)' }}>{opt.text}</span>
+                                          <span style={{ fontWeight: '700', color: 'white' }}>{pct}% ({optVotes})</span>
+                                        </div>
+                                        <div style={{ width: '100%', height: '6px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                                          <div style={{ 
+                                            width: `${pct}%`, 
+                                            height: '100%', 
+                                            backgroundColor: isPollActive ? (poll.settings.color || '#2563eb') : '#6b7280', 
+                                            transition: 'width 0.3s ease' 
+                                          }} />
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                              <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                                  Voters: <strong>{totalVotes}</strong>
+                                </span>
+                                
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  {isPollActive && (
+                                    <button 
+                                      type="button"
+                                      onClick={() => handleEndPoll(poll._id)}
+                                      className="btn-secondary"
+                                      style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                                    >
+                                      End Poll
+                                    </button>
+                                  )}
+                                  <button 
+                                    type="button"
+                                    onClick={() => handleDeletePoll(poll._id)}
+                                    className="btn-danger"
+                                    style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Save Settings Button footer */}
-              {activeTab !== 'overview' && activeTab !== 'logs' && activeTab !== 'broadcast' && activeTab !== 'publish' && (
+              {activeTab !== 'overview' && activeTab !== 'logs' && activeTab !== 'broadcast' && activeTab !== 'publish' && activeTab !== 'polls' && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
                   <button 
                     type="submit" 
@@ -4828,6 +5343,7 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
                   </button>
                 </div>
               )}
+
 
             </form>
             )}
