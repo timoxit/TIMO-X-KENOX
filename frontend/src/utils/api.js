@@ -1,6 +1,7 @@
 const API_URL = window.location.port === '5173' || window.location.port === '5174'
-  ? 'http://localhost:1816/api'
+  ? 'http://localhost:10000/api'
   : '/api';
+
 
 export const setToken = (token) => {
   if (token) {

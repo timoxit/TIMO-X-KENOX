@@ -1129,8 +1129,9 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
   // Initialize Socket.IO connection and join room
   useEffect(() => {
     const socketUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:1816'
+      ? 'http://localhost:10000'
       : window.location.origin;
+
 
     const newSocket = io(socketUrl, {
       withCredentials: true,
@@ -1276,10 +1277,11 @@ export default function Dashboard({ guildId, guildName, guildIcon, onBack, user 
     if (!url) return '';
     if (url.startsWith('/uploads/')) {
       const isLocal = window.location.port === '5173' || window.location.port === '5174';
-      return isLocal ? `http://localhost:1816${url}` : url;
+      return isLocal ? `http://localhost:10000${url}` : url;
     }
     return url;
   };
+
 
   const handleResetLayout = () => {
     setSettings(prev => ({

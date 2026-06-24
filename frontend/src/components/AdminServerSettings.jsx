@@ -268,8 +268,9 @@ export default function AdminServerSettings({ guildId }) {
   // Connect to Socket.IO and listen for bulk progress updates
   useEffect(() => {
     const socketUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:1816'
+      ? 'http://localhost:10000'
       : window.location.origin;
+
 
     const newSocket = io(socketUrl, {
       withCredentials: true,
